@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 import { DocumentSelector } from "@/components/document-selector";
 import { CollapsibleToc } from "@/components/collapsible-toc";
 import { OriginalDocumentView } from "@/components/original-document-view";
+import { SearchInput } from "@/components/search-input";
+import { SearchResults } from "@/components/search-results";
 import DocumentService from "@/lib/document-service";
 import { AvailableDocument, LegislationDocument } from "@/types/legislation";
+import { searchService, SearchResult } from "@/lib/search-service";
 import { ChevronLeft } from "lucide-react";
 
 function HomeContent() {
@@ -22,6 +25,9 @@ function HomeContent() {
   const [isLoadingDocument, setIsLoadingDocument] = useState(false);
   const [isDocumentOpen, setIsDocumentOpen] = useState(false);
   const [showDocumentSelector, setShowDocumentSelector] = useState(true);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
   // Handle URL parameters on mount and URL changes
   useEffect(() => {
@@ -124,6 +130,34 @@ function HomeContent() {
     }
   };
 
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setIsSearchActive(query.trim().length >= 2);
+    
+    if (query.trim().length >= 2) {
+      const results = searchService.search(query);
+      setSearchResults(results);
+    } else {
+      setSearchResults([]);
+      setIsSearchActive(false);
+    }
+  };
+
+  const handleSearchClear = () => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setIsSearchActive(false);
+  };
+
+  const handleSearchResultClick = (resultId: string) => {
+    handleElementClick(resultId);
+    // On mobile, clear search and show document
+    const isMobile = window.innerWidth < 1024;
+    if (isMobile) {
+      handleSearchClear();
+    }
+  };
+
   const handleBackToSelection = () => {
     // Clear URL parameters
     router.push('/', { scroll: false });
@@ -215,10 +249,26 @@ function HomeContent() {
           </div>
           <ScrollArea className="h-[calc(100vh-73px)] lg:h-[calc(100vh-73px)] h-[calc(100vh-133px)]">
             <div className="p-4">
-              <CollapsibleToc 
-                activeElementId={activeElementId}
-                onElementClick={handleElementClick}
+              <SearchInput 
+                searchQuery={searchQuery}
+                onSearchChange={handleSearchChange}
+                onSearchClear={handleSearchClear}
+                placeholder="Search legislation..."
+                className="mb-4"
               />
+              {isSearchActive ? (
+                <SearchResults
+                  results={searchResults}
+                  searchQuery={searchQuery}
+                  onResultClick={handleSearchResultClick}
+                  activeElementId={activeElementId}
+                />
+              ) : (
+                <CollapsibleToc 
+                  activeElementId={activeElementId}
+                  onElementClick={handleElementClick}
+                />
+              )}
             </div>
           </ScrollArea>
         </div>
