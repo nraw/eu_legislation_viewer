@@ -108,26 +108,14 @@ export function CollapsibleToc({
     }
   };
 
-  const handleSectionClick = (sectionId: string) => {
-    // Open the section if it's not already open
-    if (!openSections.has(sectionId)) {
-      const newOpenSections = new Set(openSections);
-      newOpenSections.add(sectionId);
-      setOpenSections(newOpenSections);
-    }
-    // Navigate to the section
-    onElementClick(sectionId);
+  const handleChevronClick = (e: React.MouseEvent, toggleFunction: () => void) => {
+    e.stopPropagation();
+    toggleFunction();
   };
 
-  const handleChapterClick = (chapterId: string) => {
-    // Open the chapter if it's not already open
-    if (!openChapters.has(chapterId)) {
-      const newOpenChapters = new Set(openChapters);
-      newOpenChapters.add(chapterId);
-      setOpenChapters(newOpenChapters);
-    }
-    // Navigate to the chapter
-    onElementClick(chapterId);
+  const handleNavigationClick = (elementId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    onElementClick(elementId);
   };
 
   const getIcon = (type: string) => {
@@ -164,9 +152,9 @@ export function CollapsibleToc({
       >
         {getIcon(type)}
         <span className="w-3 h-3 flex items-center justify-center mr-2 flex-shrink-0 text-gray-400 text-xs">-</span>
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 overflow-hidden">
           <div className="flex items-center gap-1 mb-1">
-            <span className="text-base truncate">{title}</span>
+            <span className="text-base truncate block max-w-full">{title}</span>
             {type && (
               <Badge variant="secondary" className="ml-1 text-sm px-1 py-0 flex-shrink-0">
                 {type}
@@ -203,17 +191,18 @@ export function CollapsibleToc({
                     : ""
                 }`}
                 style={{ paddingLeft: `${12 + level * 16}px` }}
-                onClick={() => onElementClick(paragraph.id)}
               >
                 <List className="h-2 w-2 mr-2 flex-shrink-0" />
-                {openParagraphs.has(paragraph.id) ? (
-                  <ChevronDown className="h-2 w-2 mr-2 flex-shrink-0" />
-                ) : (
-                  <ChevronRight className="h-2 w-2 mr-2 flex-shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
+                <div className="h-6 w-6 mr-1 flex-shrink-0 cursor-pointer flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded" onClick={(e) => handleChevronClick(e, () => toggleParagraph(paragraph.id))}>
+                  {openParagraphs.has(paragraph.id) ? (
+                    <ChevronDown className="h-3 w-3" />
+                  ) : (
+                    <ChevronRight className="h-3 w-3" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0 overflow-hidden cursor-pointer" onClick={(e) => handleNavigationClick(paragraph.id, e)}>
                   <div className="flex items-center gap-1">
-                    <span className="text-base font-medium truncate">{paragraph.title}</span>
+                    <span className="text-base font-medium truncate block max-w-full">{paragraph.title}</span>
                   </div>
                   {summary && (
                     <div className="flex items-start gap-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed mt-1 pr-1">
@@ -257,17 +246,18 @@ export function CollapsibleToc({
                     : ""
                 }`}
                 style={{ paddingLeft: `${12 + level * 16}px` }}
-                onClick={() => onElementClick(article.id)}
               >
                 <FileText className="h-3 w-3 mr-2 flex-shrink-0" />
-                {openArticles.has(article.id) ? (
-                  <ChevronDown className="h-3 w-3 mr-2 flex-shrink-0" />
-                ) : (
-                  <ChevronRight className="h-3 w-3 mr-2 flex-shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
+                <div className="h-6 w-6 mr-1 flex-shrink-0 cursor-pointer flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded" onClick={(e) => handleChevronClick(e, () => toggleArticle(article.id))}>
+                  {openArticles.has(article.id) ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0 overflow-hidden cursor-pointer" onClick={(e) => handleNavigationClick(article.id, e)}>
                   <div className="flex items-center gap-1">
-                    <span className="text-base font-medium truncate">{article.title}</span>
+                    <span className="text-base font-medium truncate block max-w-full">{article.title}</span>
                   </div>
                   {summary && (
                     <div className="flex items-start gap-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed mt-1 pr-1">
@@ -312,17 +302,18 @@ export function CollapsibleToc({
                   : ""
               }`}
               style={{ paddingLeft: `${12 + chapterLevel * 16}px` }}
-              onClick={() => handleSectionClick(section.id)}
             >
               <Hash className="h-3 w-3 mr-2 flex-shrink-0" />
-              {openSections.has(section.id) ? (
-                <ChevronDown className="h-3 w-3 mr-2 flex-shrink-0" />
-              ) : (
-                <ChevronRight className="h-3 w-3 mr-2 flex-shrink-0" />
-              )}
-              <div className="flex-1 min-w-0">
+              <div className="h-6 w-6 mr-1 flex-shrink-0 cursor-pointer flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded" onClick={(e) => handleChevronClick(e, () => toggleSection(section.id))}>
+                {openSections.has(section.id) ? (
+                  <ChevronDown className="h-4 w-4" />
+                ) : (
+                  <ChevronRight className="h-4 w-4" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0 overflow-hidden cursor-pointer" onClick={(e) => handleNavigationClick(section.id, e)}>
                 <div className="flex items-center gap-1">
-                  <span className="text-base font-medium truncate">{section.title}</span>
+                  <span className="text-base font-medium truncate block max-w-full">{section.title}</span>
                 </div>
                 {summary && (
                   <div className="flex items-start gap-1 text-sm text-gray-500 dark:text-gray-400 leading-relaxed mt-1 pr-1">
@@ -356,22 +347,23 @@ export function CollapsibleToc({
         <CollapsibleTrigger asChild>
           <Button
             variant="ghost"
-            className={`w-full justify-start h-auto p-2 font-medium text-left hover:bg-gray-100 dark:hover:bg-gray-800 ${
+            className={`w-full justify-start h-auto p-2 font-medium text-left hover:bg-gray-100 dark:hover:bg-gray-800 min-w-0 overflow-hidden ${
               activeElementId === chapter.id
                 ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-500"
                 : ""
             }`}
-            onClick={() => handleChapterClick(chapter.id)}
           >
             <BookOpen className="h-4 w-4 mr-2 flex-shrink-0" />
-            {openChapters.has(chapter.id) ? (
-              <ChevronDown className="h-4 w-4 mr-2 flex-shrink-0" />
-            ) : (
-              <ChevronRight className="h-4 w-4 mr-2 flex-shrink-0" />
-            )}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1">
-                <span className="text-lg truncate">{chapter.title}</span>
+            <div className="h-7 w-7 mr-1 flex-shrink-0 cursor-pointer flex items-center justify-center hover:bg-gray-200 dark:hover:bg-gray-700 rounded" onClick={(e) => handleChevronClick(e, () => toggleChapter(chapter.id))}>
+              {openChapters.has(chapter.id) ? (
+                <ChevronDown className="h-5 w-5" />
+              ) : (
+                <ChevronRight className="h-5 w-5" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0 overflow-hidden cursor-pointer" onClick={(e) => handleNavigationClick(chapter.id, e)}>
+              <div className="flex items-center gap-1 min-w-0">
+                <span className="text-lg truncate block min-w-0 flex-shrink">{chapter.title}</span>
               </div>
               {summary && (
                 <div className="flex items-start gap-1 text-base text-gray-500 dark:text-gray-400 leading-relaxed mt-1 pr-1">
@@ -395,7 +387,7 @@ export function CollapsibleToc({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full max-w-full overflow-hidden">
       <div className="mb-4">
         <div>
           <a 
@@ -468,7 +460,7 @@ export function CollapsibleToc({
       </div>
 
       {/* Chapters */}
-      <div className="space-y-1">
+      <div className="space-y-1 w-full max-w-full overflow-hidden">
         {regulationHierarchicalStructure.map((chapter) => renderChapter(chapter as HierarchicalNavigationItem))}
       </div>
 

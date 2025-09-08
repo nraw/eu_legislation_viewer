@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { DocumentSelector } from "@/components/document-selector";
@@ -11,6 +12,9 @@ import { AvailableDocument, LegislationDocument } from "@/types/legislation";
 import { ChevronLeft, Menu } from "lucide-react";
 
 export default function Home() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
   const [activeElementId, setActiveElementId] = useState<string>("");
   const [currentDocument, setCurrentDocument] = useState<LegislationDocument | null>(null);
@@ -19,8 +23,66 @@ export default function Home() {
   const [isTocOpen, setIsTocOpen] = useState(false);
   const [showDocumentSelector, setShowDocumentSelector] = useState(true);
 
+  // Handle URL parameters on mount and URL changes
+  useEffect(() => {
+    const documentId = searchParams.get('doc');
+    const elementId = searchParams.get('element');
+    
+    if (documentId && documentId !== selectedDocumentId) {
+      const document = availableDocuments.find(doc => doc.id === documentId);
+      if (document) {
+        handleDocumentSelectFromURL(document, elementId);
+      }
+    } else if (!documentId && selectedDocumentId) {
+      // URL was cleared, go back to document selector
+      setShowDocumentSelector(true);
+      setCurrentDocument(null);
+      setSelectedDocumentId(null);
+      setActiveElementId("");
+    }
+    
+    if (elementId && elementId !== activeElementId) {
+      setActiveElementId(elementId);
+    }
+  }, [searchParams]);
+
+  const handleDocumentSelectFromURL = async (document: AvailableDocument, elementId?: string | null) => {
+    setIsLoadingDocument(true);
+    try {
+      const legislationDoc = await DocumentService.fetchDocument(document);
+      setCurrentDocument(legislationDoc);
+      setSelectedDocumentId(document.id);
+      
+      // Set active element from URL or default to first chapter
+      const targetElementId = elementId || "chapter-0";
+      setActiveElementId(targetElementId);
+      
+      setShowDocumentSelector(false);
+      
+      // Scroll to element after a brief delay to ensure content is rendered
+      if (elementId) {
+        setTimeout(() => {
+          const element = window.document.getElementById(elementId);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.error('Error loading document:', error);
+    } finally {
+      setIsLoadingDocument(false);
+    }
+  };
+
   const handleDocumentSelect = async (document: AvailableDocument) => {
     if (selectedDocumentId === document.id) return;
+    
+    // Update URL immediately
+    const params = new URLSearchParams();
+    params.set('doc', document.id);
+    params.set('element', 'chapter-0');
+    router.push(`?${params.toString()}`, { scroll: false });
     
     setIsLoadingDocument(true);
     try {
@@ -41,7 +103,16 @@ export default function Home() {
 
   const handleElementClick = (elementId: string) => {
     setActiveElementId(elementId);
-    const element = document.getElementById(elementId);
+    
+    // Update URL with current document and element
+    if (selectedDocumentId) {
+      const params = new URLSearchParams();
+      params.set('doc', selectedDocumentId);
+      params.set('element', elementId);
+      router.replace(`?${params.toString()}`, { scroll: false });
+    }
+    
+    const element = window.document.getElementById(elementId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
