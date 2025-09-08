@@ -6,8 +6,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true
   },
-  basePath: process.env.NODE_ENV === 'production' ? '/legislation-viewer' : '',
-  assetPrefix: process.env.NODE_ENV === 'production' ? '/legislation-viewer' : '',
+  basePath: process.env.NODE_ENV === 'production' ? '/eu_legislation_viewer' : '',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '/eu_legislation_viewer' : '',
 };
 
 export default nextConfig;
