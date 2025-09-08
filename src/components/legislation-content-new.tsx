@@ -2,11 +2,18 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { LegislationDocument, DocumentArticle, DocumentChapter, DocumentSection } from "@/types/legislation";
+import { LegislationDocument, DocumentArticle, DocumentParagraph, DocumentSection, DocumentChapter } from "@/types/legislation";
 
 interface LegislationContentProps {
   document: LegislationDocument;
   selectedArticleId: string;
+}
+
+interface ArticleContext {
+  article: DocumentArticle;
+  chapter: DocumentChapter | null;
+  section: DocumentSection | null;
+  path: string[];
 }
 
 export function LegislationContentNew({ document, selectedArticleId }: LegislationContentProps) {
@@ -69,7 +76,7 @@ export function LegislationContentNew({ document, selectedArticleId }: Legislati
     return null;
   };
 
-  const findInSection = (section: DocumentSection, articleId: string, currentPath: string[]): any => {
+  const findInSection = (section: DocumentSection, articleId: string, currentPath: string[]): ArticleContext | null => {
     const path = [...currentPath, section.title];
     
     if (section.articles) {
@@ -147,7 +154,7 @@ export function LegislationContentNew({ document, selectedArticleId }: Legislati
               </p>
             )}
             
-            {article.paragraphs.map((paragraph: any, index: number) => (
+            {article.paragraphs.map((paragraph: DocumentParagraph) => (
               <div key={paragraph.id} className="mb-4">
                 {paragraph.number && (
                   <div className="text-sm font-mono text-gray-500 mb-1">
@@ -160,7 +167,7 @@ export function LegislationContentNew({ document, selectedArticleId }: Legislati
                 
                 {paragraph.subparagraphs && paragraph.subparagraphs.length > 0 && (
                   <div className="ml-6 mt-3 space-y-2">
-                    {paragraph.subparagraphs.map((subpara: any) => (
+                    {paragraph.subparagraphs.map((subpara: DocumentParagraph) => (
                       <div key={subpara.id} className="border-l-2 border-gray-200 pl-4">
                         {subpara.number && (
                           <div className="text-sm font-mono text-gray-500 mb-1">
@@ -189,8 +196,8 @@ export function LegislationContentNew({ document, selectedArticleId }: Legislati
           <CardContent>
             <div className="space-y-3">
               {section.articles
-                .filter((a: any) => a.id !== selectedArticleId)
-                .map((otherArticle: any) => (
+                .filter((a: DocumentArticle) => a.id !== selectedArticleId)
+                .map((otherArticle: DocumentArticle) => (
                   <div
                     key={otherArticle.id}
                     className="p-3 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"

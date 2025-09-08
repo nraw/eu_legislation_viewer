@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronRight, FileText, BookOpen, Hash } from "lucide-react";
 import {
   Collapsible,
@@ -8,7 +8,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { LegislationDocument, DocumentChapter, DocumentSection, DocumentArticle } from "@/types/legislation";
+import { LegislationDocument, DocumentChapter, DocumentSection } from "@/types/legislation";
 
 interface ScrollingTableOfContentsProps {
   document: LegislationDocument;

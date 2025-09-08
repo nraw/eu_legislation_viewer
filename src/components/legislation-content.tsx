@@ -32,15 +32,15 @@ interface LegislationContentProps {
 
 export function LegislationContent({ structure, selectedArticle }: LegislationContentProps) {
   // Find the selected article
-  const findArticle = (articleId: string): Article | null => {
-    for (const chapter of structure.chapters) {
-      for (const section of chapter.sections) {
-        const article = section.articles.find(a => a.id === articleId);
-        if (article) return article;
-      }
-    }
-    return null;
-  };
+  // const findArticle = (articleId: string): Article | null => {
+  //   for (const chapter of structure.chapters) {
+  //     for (const section of chapter.sections) {
+  //       const article = section.articles.find(a => a.id === articleId);
+  //       if (article) return article;
+  //     }
+  //   }
+  //   return null;
+  // };
 
   // Find the context (chapter and section) for the selected article
   const findArticleContext = (articleId: string) => {

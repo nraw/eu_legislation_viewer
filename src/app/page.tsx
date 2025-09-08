@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { DocumentSelector } from "@/components/document-selector";
@@ -139,7 +139,6 @@ export default function Home() {
                   handleElementClick(elementId);
                   setIsTocOpen(false); // Close ToC on mobile after selection
                 }}
-                onBackToHome={handleBackToSelection}
               />
             </div>
           </ScrollArea>

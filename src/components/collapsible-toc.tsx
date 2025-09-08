@@ -14,20 +14,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { regulationHierarchicalStructure } from "@/data/regulation-content";
+import { regulationHierarchicalStructure, HierarchicalNavigationItem } from "@/data/regulation-content";
 import { getSummary, hasSummaries } from "@/data/summaries";
 import { ChevronDown, ChevronRight, FileText, BookOpen, Hash, List, Dot, Sparkles } from "lucide-react";
 
 interface CollapsibleTocProps {
   activeElementId: string;
   onElementClick: (elementId: string) => void;
-  onBackToHome: () => void;
 }
 
 export function CollapsibleToc({ 
   activeElementId, 
-  onElementClick,
-  onBackToHome
+  onElementClick
 }: CollapsibleTocProps) {
   const [openChapters, setOpenChapters] = useState<Set<string>>(new Set(['chapter-0', 'chapter-1']));
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
@@ -74,24 +72,6 @@ export function CollapsibleToc({
     setOpenParagraphs(newOpenParagraphs);
   };
 
-  const collapseAll = () => {
-    setOpenChapters(new Set());
-    setOpenSections(new Set());
-    setOpenArticles(new Set());
-    setOpenParagraphs(new Set());
-  };
-
-  const showAll = () => {
-    const allChapterIds = regulationHierarchicalStructure.filter(item => item.type === 'chapter').map(item => item.id);
-    const allSectionIds = regulationHierarchicalStructure.filter(item => item.type === 'section').map(item => item.id);
-    const allArticleIds = regulationHierarchicalStructure.filter(item => item.type === 'article').map(item => item.id);
-    const allParagraphIds = regulationHierarchicalStructure.filter(item => item.type === 'paragraph').map(item => item.id);
-    
-    setOpenChapters(new Set(allChapterIds));
-    setOpenSections(new Set(allSectionIds));
-    setOpenArticles(new Set(allArticleIds));
-    setOpenParagraphs(new Set(allParagraphIds));
-  };
 
   const showUpToLevel = (level: 'chapters' | 'sections' | 'articles' | 'paragraphs' | 'points') => {
     const allChapterIds = regulationHierarchicalStructure.filter(item => item.type === 'chapter').map(item => item.id);
@@ -204,7 +184,7 @@ export function CollapsibleToc({
     );
   };
 
-  const renderParagraph = (paragraph: any, level: number) => {
+  const renderParagraph = (paragraph: HierarchicalNavigationItem, level: number) => {
     const summary = getSummary(paragraph.id);
     
     if (paragraph.children && paragraph.children.length > 0) {
@@ -246,7 +226,7 @@ export function CollapsibleToc({
             </CollapsibleTrigger>
             <CollapsibleContent>
               {/* Points in paragraph */}
-              {paragraph.children?.map((point: any) => 
+              {paragraph.children?.map((point: HierarchicalNavigationItem) => 
                 renderTocItem(point.id, point.title, point.type, level + 1)
               )}
             </CollapsibleContent>
@@ -258,7 +238,7 @@ export function CollapsibleToc({
     }
   };
 
-  const renderArticle = (article: any, level: number) => {
+  const renderArticle = (article: HierarchicalNavigationItem, level: number) => {
     const summary = getSummary(article.id);
     
     if (article.children && article.children.length > 0) {
@@ -300,7 +280,7 @@ export function CollapsibleToc({
             </CollapsibleTrigger>
             <CollapsibleContent>
               {/* Paragraphs and points in article */}
-              {article.children?.map((child: any) => 
+              {article.children?.map((child: HierarchicalNavigationItem) => 
                 child.type === 'paragraph' 
                   ? renderParagraph(child, level + 1)
                   : renderTocItem(child.id, child.title, child.type, level + 1)
@@ -314,7 +294,7 @@ export function CollapsibleToc({
     }
   };
 
-  const renderSection = (section: any, chapterLevel: number) => {
+  const renderSection = (section: HierarchicalNavigationItem, chapterLevel: number) => {
     const summary = getSummary(section.id);
     
     return (
@@ -355,7 +335,7 @@ export function CollapsibleToc({
           </CollapsibleTrigger>
           <CollapsibleContent>
             {/* Articles in section */}
-            {section.children?.map((article: any) => 
+            {section.children?.map((article: HierarchicalNavigationItem) => 
               renderArticle(article, chapterLevel + 1)
             )}
           </CollapsibleContent>
@@ -364,7 +344,7 @@ export function CollapsibleToc({
     );
   };
 
-  const renderChapter = (chapter: any) => {
+  const renderChapter = (chapter: HierarchicalNavigationItem) => {
     const summary = getSummary(chapter.id);
     
     return (
@@ -404,7 +384,7 @@ export function CollapsibleToc({
         </CollapsibleTrigger>
         <CollapsibleContent className="space-y-1">
           {/* Sections and articles in chapter */}
-          {chapter.children?.map((child: any) => 
+          {chapter.children?.map((child: HierarchicalNavigationItem) => 
             child.type === 'section' 
               ? renderSection(child, 0)
               : renderArticle(child, 0)
@@ -489,7 +469,7 @@ export function CollapsibleToc({
 
       {/* Chapters */}
       <div className="space-y-1">
-        {regulationHierarchicalStructure.map((chapter: any) => renderChapter(chapter))}
+        {regulationHierarchicalStructure.map((chapter) => renderChapter(chapter as HierarchicalNavigationItem))}
       </div>
 
       {/* Legend */}

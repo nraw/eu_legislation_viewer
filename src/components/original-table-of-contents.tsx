@@ -1,11 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { regulationNavigationStructure, NavigationItem } from "@/data/regulation-content";
 import { getSummary, hasSummaries } from "@/data/summaries";
-import { ChevronDown, ChevronRight, FileText, BookOpen, Hash, List, Sparkles } from "lucide-react";
+import { FileText, BookOpen, Hash, List, Sparkles } from "lucide-react";
 
 interface OriginalTableOfContentsProps {
   activeElementId: string;

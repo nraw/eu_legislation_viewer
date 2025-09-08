@@ -3,7 +3,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LegislationDocument } from "@/types/legislation";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface FullDocumentViewProps {
   document: LegislationDocument;
@@ -99,7 +98,7 @@ export function FullDocumentView({ document }: FullDocumentViewProps) {
                                 {article.content}
                               </p>
                             )}
-                            {article.paragraphs.map((paragraph, index) => (
+                            {article.paragraphs.map((paragraph) => (
                               <div key={paragraph.id} className="ml-4">
                                 {paragraph.number && (
                                   <div className="text-sm font-mono text-gray-500 mb-1">

@@ -6,6 +6,14 @@ export interface NavigationItem {
   hasChildren?: boolean;
 }
 
+export interface HierarchicalNavigationItem {
+  id: string;
+  title: string;
+  level: number;
+  type: 'article' | 'whereas' | 'chapter' | 'section' | 'paragraph' | 'point';
+  children?: HierarchicalNavigationItem[];
+}
+
 export const regulationNavigationStructure: NavigationItem[] = [
   {
     "id": "chapter-0",

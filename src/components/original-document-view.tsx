@@ -2,11 +2,7 @@
 
 import { regulationHtmlContent } from "@/data/regulation-content";
 
-interface OriginalDocumentViewProps {
-  // This component displays the original HTML content
-}
-
-export function OriginalDocumentView({}: OriginalDocumentViewProps) {
+export function OriginalDocumentView() {
   return (
     <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen overflow-hidden">
       <style dangerouslySetInnerHTML={{

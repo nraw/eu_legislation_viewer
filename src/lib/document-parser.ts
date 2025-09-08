@@ -1,4 +1,4 @@
-import { LegislationDocument, DocumentContent, DocumentChapter, DocumentSection, DocumentArticle, DocumentParagraph } from '@/types/legislation';
+import { LegislationDocument, DocumentContent, DocumentChapter, DocumentSection, DocumentArticle } from '@/types/legislation';
 
 export class DocumentParser {
   static parseEuLexDocument(htmlContent: string, documentInfo: { id: string, title: string, url: string, reference: string }): LegislationDocument {
@@ -56,7 +56,6 @@ export class DocumentParser {
     if (preambleElements.length === 0) return undefined;
     
     const articles: DocumentArticle[] = [];
-    let articleCounter = 1;
     
     preambleElements.forEach((element, index) => {
       const content = element.textContent?.trim() || '';
