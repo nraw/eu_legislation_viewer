@@ -1,103 +1,176 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { DocumentSelector } from "@/components/document-selector";
+import { CollapsibleToc } from "@/components/collapsible-toc";
+import { OriginalDocumentView } from "@/components/original-document-view";
+import DocumentService from "@/lib/document-service";
+import { AvailableDocument, LegislationDocument } from "@/types/legislation";
+import { ChevronLeft, Menu } from "lucide-react";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
+  const [activeElementId, setActiveElementId] = useState<string>("");
+  const [currentDocument, setCurrentDocument] = useState<LegislationDocument | null>(null);
+  const [availableDocuments] = useState<AvailableDocument[]>(DocumentService.getAvailableDocuments());
+  const [isLoadingDocument, setIsLoadingDocument] = useState(false);
+  const [isTocOpen, setIsTocOpen] = useState(false);
+  const [showDocumentSelector, setShowDocumentSelector] = useState(true);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleDocumentSelect = async (document: AvailableDocument) => {
+    if (selectedDocumentId === document.id) return;
+    
+    setIsLoadingDocument(true);
+    try {
+      const legislationDoc = await DocumentService.fetchDocument(document);
+      setCurrentDocument(legislationDoc);
+      setSelectedDocumentId(document.id);
+      
+      // Auto-set first active element to first chapter
+      setActiveElementId("chapter-0"); // First chapter
+      
+      setShowDocumentSelector(false);
+    } catch (error) {
+      console.error('Error loading document:', error);
+    } finally {
+      setIsLoadingDocument(false);
+    }
+  };
+
+  const handleElementClick = (elementId: string) => {
+    setActiveElementId(elementId);
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const handleBackToSelection = () => {
+    setShowDocumentSelector(true);
+    setCurrentDocument(null);
+    setSelectedDocumentId(null);
+    setActiveElementId("");
+  };
+
+  if (showDocumentSelector) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              EU Legislation Viewer
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Browse and explore European Union legislation documents with an interactive table of contents.
+            </p>
+          </div>
+          
+          <DocumentSelector
+            availableDocuments={availableDocuments}
+            selectedDocumentId={selectedDocumentId}
+            onDocumentSelect={handleDocumentSelect}
+            isLoading={isLoadingDocument}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      </div>
+    );
+  }
+
+  if (!currentDocument) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading document...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen">
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-700 p-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleBackToSelection}
+            className="p-2"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-sm font-semibold truncate max-w-[200px]">
+              {currentDocument.title}
+            </h1>
+            <p className="text-xs text-gray-500">{currentDocument.reference}</p>
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsTocOpen(!isTocOpen)}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          <Menu className="h-4 w-4" />
+        </Button>
+      </div>
+
+      <div className="flex">
+        {/* Table of Contents - Left Side */}
+        <div className={`lg:w-1/2 w-full lg:relative absolute lg:translate-x-0 transition-transform duration-300 z-10 bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-700 ${
+          isTocOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}>
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 hidden lg:flex items-center justify-between">
+            <h1 className="text-lg font-semibold">Table of Contents</h1>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToSelection}
+              className="text-xs"
+            >
+              <ChevronLeft className="h-3 w-3 mr-1" />
+              Back
+            </Button>
+          </div>
+          <ScrollArea className="h-[calc(100vh-73px)] lg:h-[calc(100vh-73px)] h-[calc(100vh-133px)]">
+            <div className="p-4">
+              <CollapsibleToc 
+                activeElementId={activeElementId}
+                onElementClick={(elementId) => {
+                  handleElementClick(elementId);
+                  setIsTocOpen(false); // Close ToC on mobile after selection
+                }}
+              />
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Mobile Overlay */}
+        {isTocOpen && (
+          <div 
+            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-5"
+            onClick={() => setIsTocOpen(false)}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        )}
+
+        {/* Legislation Content - Right Side */}
+        <div className="lg:w-1/2 w-full lg:relative">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 hidden lg:block">
+            <div className="flex items-center justify-between">
+              <h1 className="text-lg font-semibold">Document Content</h1>
+              <div className="text-xs text-gray-500">
+                {currentDocument.type}
+              </div>
+            </div>
+          </div>
+          <ScrollArea className="lg:h-[calc(100vh-73px)] h-[calc(100vh-60px)]">
+            <OriginalDocumentView />
+          </ScrollArea>
+        </div>
+      </div>
     </div>
   );
 }
