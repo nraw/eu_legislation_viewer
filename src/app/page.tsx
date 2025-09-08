@@ -69,7 +69,7 @@ export default function Home() {
           
           <DocumentSelector
             availableDocuments={availableDocuments}
-            selectedDocumentId={selectedDocumentId}
+            selectedDocumentId={selectedDocumentId || undefined}
             onDocumentSelect={handleDocumentSelect}
             isLoading={isLoadingDocument}
           />

@@ -469,9 +469,16 @@ export function CollapsibleToc({
           
           {/* Summary indicator */}
           {hasSummaries() && (
-            <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-              <Sparkles className="h-3 w-3" />
-              <span>AI summaries available</span>
+            <div className="text-xs">
+              <div className="flex items-center gap-1 text-amber-600 dark:text-amber-400 mb-2">
+                <Sparkles className="h-3 w-3" />
+                <span>AI summaries available</span>
+              </div>
+              <div className="text-gray-500 dark:text-gray-400 text-xs leading-relaxed p-2 bg-gray-50 dark:bg-gray-800/50 rounded border-l-2 border-amber-500">
+                <strong>Disclaimer:</strong> AI-generated summaries are for informational purposes only and may contain errors or inaccuracies. 
+                They should not be relied upon for legal advice or compliance. 
+                Always refer to the <a href="https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex%3A52022PC0209" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">official EUR-Lex document</a> for authoritative legal text and interpretations.
+              </div>
             </div>
           )}
         </div>
