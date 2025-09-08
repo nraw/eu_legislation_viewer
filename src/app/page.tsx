@@ -124,16 +124,12 @@ export default function Home() {
           isTocOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}>
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 hidden lg:flex items-center justify-between">
-            <h1 className="text-lg font-semibold">Table of Contents</h1>
-            <Button
-              variant="ghost"
-              size="sm"
+            <button 
               onClick={handleBackToSelection}
-              className="text-xs"
+              className="text-lg font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
-              <ChevronLeft className="h-3 w-3 mr-1" />
-              Back
-            </Button>
+              EU Legislation Viewer
+            </button>
           </div>
           <ScrollArea className="h-[calc(100vh-73px)] lg:h-[calc(100vh-73px)] h-[calc(100vh-133px)]">
             <div className="p-4">
@@ -143,6 +139,7 @@ export default function Home() {
                   handleElementClick(elementId);
                   setIsTocOpen(false); // Close ToC on mobile after selection
                 }}
+                onBackToHome={handleBackToSelection}
               />
             </div>
           </ScrollArea>
@@ -161,8 +158,9 @@ export default function Home() {
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 hidden lg:block">
             <div className="flex items-center justify-between">
               <h1 className="text-lg font-semibold">Document Content</h1>
-              <div className="text-xs text-gray-500">
-                {currentDocument.type}
+              <div className="text-xs text-gray-500 text-right">
+                <div>{currentDocument.type}</div>
+                <div>Analysis: Sep 8, 2025</div>
               </div>
             </div>
           </div>

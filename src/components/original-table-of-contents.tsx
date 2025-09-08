@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { regulationNavigationStructure, NavigationItem } from "@/data/regulation-content";
-import { ChevronDown, ChevronRight, FileText, BookOpen, Hash, List } from "lucide-react";
+import { getSummary, hasSummaries } from "@/data/summaries";
+import { ChevronDown, ChevronRight, FileText, BookOpen, Hash, List, Sparkles } from "lucide-react";
 
 interface OriginalTableOfContentsProps {
   activeElementId: string;
@@ -56,40 +57,66 @@ export function OriginalTableOfContents({
           </span>
           <span>COM(2022) 209</span>
         </div>
+        
+        {/* Summary indicator */}
+        {hasSummaries() && (
+          <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 mt-2">
+            <Sparkles className="h-3 w-3" />
+            <span>AI summaries available</span>
+          </div>
+        )}
       </div>
 
       <div className="space-y-1">
-        {regulationNavigationStructure.map((item) => (
-          <Button
-            key={item.id}
-            variant="ghost"
-            className={`w-full justify-start h-auto p-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 ${
-              activeElementId === item.id
-                ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-500"
-                : ""
-            }`}
-            style={{ paddingLeft: `${12 + (item.level - 1) * 16}px` }}
-            onClick={() => onElementClick(item.id)}
-          >
-            {getIcon(item)}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs truncate">{item.title}</span>
-                <Badge 
-                  variant="secondary" 
-                  className={`text-xs ${getTypeColor(item.type)} px-1 py-0 text-[10px]`}
-                >
-                  {item.type}
-                </Badge>
-              </div>
-              {item.level > 2 && (
-                <div className="text-[10px] text-gray-400">
-                  Level {item.level}
+        {regulationNavigationStructure.map((item) => {
+          const summary = getSummary(item.id);
+          
+          return (
+            <Button
+              key={item.id}
+              variant="ghost"
+              className={`w-full justify-start h-auto p-2 text-left hover:bg-gray-50 dark:hover:bg-gray-800/50 ${
+                activeElementId === item.id
+                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border-r-2 border-blue-500"
+                  : ""
+              }`}
+              style={{ paddingLeft: `${12 + (item.level - 1) * 16}px` }}
+              onClick={() => onElementClick(item.id)}
+            >
+              {getIcon(item)}
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs truncate">{item.title}</span>
+                  <div className="flex items-center gap-1">
+                    {summary && (
+                      <Sparkles className="h-2 w-2 text-amber-500" />
+                    )}
+                    <Badge 
+                      variant="secondary" 
+                      className={`text-xs ${getTypeColor(item.type)} px-1 py-0 text-[10px]`}
+                    >
+                      {item.type}
+                    </Badge>
+                  </div>
                 </div>
-              )}
-            </div>
-          </Button>
-        ))}
+                
+                {/* Show summary if available */}
+                {summary && (
+                  <div className="text-[10px] text-gray-500 dark:text-gray-400 leading-relaxed mt-1 pr-1">
+                    {summary}
+                  </div>
+                )}
+                
+                {/* Show level for deep items without summaries */}
+                {item.level > 2 && !summary && (
+                  <div className="text-[10px] text-gray-400">
+                    Level {item.level}
+                  </div>
+                )}
+              </div>
+            </Button>
+          );
+        })}
       </div>
 
       <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
