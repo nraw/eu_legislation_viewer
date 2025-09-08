@@ -112,7 +112,7 @@ export function LegislationContentNew({ document, selectedArticleId }: Legislati
       <div className="text-sm text-gray-500 space-y-2">
         <div className="font-medium">{document.content.title}</div>
         <div className="flex items-center flex-wrap gap-2">
-          {path.map((item, index) => (
+          {path.map((item: string, index: number) => (
             <div key={index} className="flex items-center">
               {index > 0 && <span className="mx-2">→</span>}
               <Badge variant="secondary" className="text-xs">
@@ -147,7 +147,7 @@ export function LegislationContentNew({ document, selectedArticleId }: Legislati
               </p>
             )}
             
-            {article.paragraphs.map((paragraph, index) => (
+            {article.paragraphs.map((paragraph: any, index: number) => (
               <div key={paragraph.id} className="mb-4">
                 {paragraph.number && (
                   <div className="text-sm font-mono text-gray-500 mb-1">
@@ -160,7 +160,7 @@ export function LegislationContentNew({ document, selectedArticleId }: Legislati
                 
                 {paragraph.subparagraphs && paragraph.subparagraphs.length > 0 && (
                   <div className="ml-6 mt-3 space-y-2">
-                    {paragraph.subparagraphs.map((subpara) => (
+                    {paragraph.subparagraphs.map((subpara: any) => (
                       <div key={subpara.id} className="border-l-2 border-gray-200 pl-4">
                         {subpara.number && (
                           <div className="text-sm font-mono text-gray-500 mb-1">
@@ -189,8 +189,8 @@ export function LegislationContentNew({ document, selectedArticleId }: Legislati
           <CardContent>
             <div className="space-y-3">
               {section.articles
-                .filter(a => a.id !== selectedArticleId)
-                .map((otherArticle) => (
+                .filter((a: any) => a.id !== selectedArticleId)
+                .map((otherArticle: any) => (
                   <div
                     key={otherArticle.id}
                     className="p-3 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-colors"

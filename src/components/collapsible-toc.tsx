@@ -82,27 +82,10 @@ export function CollapsibleToc({
   };
 
   const showAll = () => {
-    const allChapterIds = regulationHierarchicalStructure.map(chapter => chapter.id);
-    const allSectionIds = regulationHierarchicalStructure
-      .flatMap(chapter => chapter.children?.filter(child => child.type === 'section').map(section => section.id) || []);
-    const allArticleIds = regulationHierarchicalStructure
-      .flatMap(chapter => [
-        ...(chapter.children?.filter(child => child.type === 'article').map(article => article.id) || []),
-        ...(chapter.children?.filter(child => child.type === 'section').flatMap(section => 
-          section.children?.filter(child => child.type === 'article').map(article => article.id) || []
-        ) || [])
-      ]);
-    const allParagraphIds = regulationHierarchicalStructure
-      .flatMap(chapter => [
-        ...(chapter.children?.filter(child => child.type === 'article').flatMap(article =>
-          article.children?.filter(child => child.type === 'paragraph').map(paragraph => paragraph.id) || []
-        ) || []),
-        ...(chapter.children?.filter(child => child.type === 'section').flatMap(section =>
-          section.children?.filter(child => child.type === 'article').flatMap(article =>
-            article.children?.filter(child => child.type === 'paragraph').map(paragraph => paragraph.id) || []
-          ) || []
-        ) || [])
-      ]);
+    const allChapterIds = regulationHierarchicalStructure.filter(item => item.type === 'chapter').map(item => item.id);
+    const allSectionIds = regulationHierarchicalStructure.filter(item => item.type === 'section').map(item => item.id);
+    const allArticleIds = regulationHierarchicalStructure.filter(item => item.type === 'article').map(item => item.id);
+    const allParagraphIds = regulationHierarchicalStructure.filter(item => item.type === 'paragraph').map(item => item.id);
     
     setOpenChapters(new Set(allChapterIds));
     setOpenSections(new Set(allSectionIds));
@@ -111,27 +94,10 @@ export function CollapsibleToc({
   };
 
   const showUpToLevel = (level: 'chapters' | 'sections' | 'articles' | 'paragraphs' | 'points') => {
-    const allChapterIds = regulationHierarchicalStructure.map(chapter => chapter.id);
-    const allSectionIds = regulationHierarchicalStructure
-      .flatMap(chapter => chapter.children?.filter(child => child.type === 'section').map(section => section.id) || []);
-    const allArticleIds = regulationHierarchicalStructure
-      .flatMap(chapter => [
-        ...(chapter.children?.filter(child => child.type === 'article').map(article => article.id) || []),
-        ...(chapter.children?.filter(child => child.type === 'section').flatMap(section => 
-          section.children?.filter(child => child.type === 'article').map(article => article.id) || []
-        ) || [])
-      ]);
-    const allParagraphIds = regulationHierarchicalStructure
-      .flatMap(chapter => [
-        ...(chapter.children?.filter(child => child.type === 'article').flatMap(article =>
-          article.children?.filter(child => child.type === 'paragraph').map(paragraph => paragraph.id) || []
-        ) || []),
-        ...(chapter.children?.filter(child => child.type === 'section').flatMap(section =>
-          section.children?.filter(child => child.type === 'article').flatMap(article =>
-            article.children?.filter(child => child.type === 'paragraph').map(paragraph => paragraph.id) || []
-          ) || []
-        ) || [])
-      ]);
+    const allChapterIds = regulationHierarchicalStructure.filter(item => item.type === 'chapter').map(item => item.id);
+    const allSectionIds = regulationHierarchicalStructure.filter(item => item.type === 'section').map(item => item.id);
+    const allArticleIds = regulationHierarchicalStructure.filter(item => item.type === 'article').map(item => item.id);
+    const allParagraphIds = regulationHierarchicalStructure.filter(item => item.type === 'paragraph').map(item => item.id);
     
     if (level === 'chapters') {
       // Show only chapters (same as collapse all - just close everything)
