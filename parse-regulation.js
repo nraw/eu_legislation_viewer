@@ -1,5 +1,5 @@
-const fs = require('fs');
-const { JSDOM } = require('jsdom');
+import fs from 'fs';
+import { JSDOM } from 'jsdom';
 
 const html = fs.readFileSync('csa-regulation-full.html', 'utf8');
 const dom = new JSDOM(html);
@@ -126,7 +126,6 @@ function parseRegulationFinal() {
     // Process article numbers and combine with titles
     else if (isArticleNumber && currentChapter) {
       let articleTitle = text;
-      let articleTitleElement = null;
       
       // Look ahead for article title (next ManualHeading3 or Normal element that's not an article number)
       for (let j = i + 1; j < Math.min(i + 3, regulationElements.length); j++) {
@@ -137,7 +136,6 @@ function parseRegulationFinal() {
             !nextText.match(/^Section\s+\d+/) &&
             nextText.length > 5 && nextText.length < 100) {
           articleTitle = `${text}: ${nextText}`;
-          articleTitleElement = nextEl;
           processedIds.add(nextEl);
           break;
         }
@@ -345,7 +343,7 @@ function parseRegulationFinal() {
   // Log structure for debugging
   chapters.forEach((chapter, i) => {
     console.log(`Chapter ${i + 1}: ${chapter.title} (${chapter.children.length} children)`);
-    chapter.children.slice(0, 5).forEach((child, j) => { // Show first 5 only
+    chapter.children.slice(0, 5).forEach((child) => { // Show first 5 only
       if (child.type === 'section') {
         console.log(`  Section: ${child.title} (${child.children?.length || 0} articles)`);
       } else {

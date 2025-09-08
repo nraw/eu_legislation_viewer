@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,9 @@ import { CollapsibleToc } from "@/components/collapsible-toc";
 import { OriginalDocumentView } from "@/components/original-document-view";
 import DocumentService from "@/lib/document-service";
 import { AvailableDocument, LegislationDocument } from "@/types/legislation";
-import { ChevronLeft, Menu } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -20,7 +20,7 @@ export default function Home() {
   const [currentDocument, setCurrentDocument] = useState<LegislationDocument | null>(null);
   const [availableDocuments] = useState<AvailableDocument[]>(DocumentService.getAvailableDocuments());
   const [isLoadingDocument, setIsLoadingDocument] = useState(false);
-  const [isTocOpen, setIsTocOpen] = useState(false);
+  const [isDocumentOpen, setIsDocumentOpen] = useState(false);
   const [showDocumentSelector, setShowDocumentSelector] = useState(true);
 
   // Handle URL parameters on mount and URL changes
@@ -44,7 +44,7 @@ export default function Home() {
     if (elementId && elementId !== activeElementId) {
       setActiveElementId(elementId);
     }
-  }, [searchParams]);
+  }, [searchParams, selectedDocumentId, availableDocuments, activeElementId]);
 
   const handleDocumentSelectFromURL = async (document: AvailableDocument, elementId?: string | null) => {
     setIsLoadingDocument(true);
@@ -112,6 +112,12 @@ export default function Home() {
       router.replace(`?${params.toString()}`, { scroll: false });
     }
     
+    // On mobile, open document view when clicking TOC item
+    const isMobile = window.innerWidth < 1024; // lg breakpoint
+    if (isMobile) {
+      setIsDocumentOpen(true);
+    }
+    
     const element = window.document.getElementById(elementId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -119,6 +125,9 @@ export default function Home() {
   };
 
   const handleBackToSelection = () => {
+    // Clear URL parameters
+    router.push('/', { scroll: false });
+    
     setShowDocumentSelector(true);
     setCurrentDocument(null);
     setSelectedDocumentId(null);
@@ -180,19 +189,21 @@ export default function Home() {
             <p className="text-xs text-gray-500">{currentDocument.reference}</p>
           </div>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setIsTocOpen(!isTocOpen)}
-        >
-          <Menu className="h-4 w-4" />
-        </Button>
+        {isDocumentOpen && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsDocumentOpen(false)}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       <div className="flex">
-        {/* Table of Contents - Left Side */}
-        <div className={`lg:w-1/2 w-full lg:relative absolute lg:translate-x-0 transition-transform duration-300 z-10 bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-700 ${
-          isTocOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        {/* Table of Contents - Main View */}
+        <div className={`lg:w-1/2 w-full lg:relative absolute lg:translate-x-0 transition-transform duration-300 z-10 bg-white dark:bg-gray-950 lg:border-r border-gray-200 dark:border-gray-700 ${
+          isDocumentOpen ? "-translate-x-full lg:translate-x-0" : "translate-x-0"
         }`}>
           <div className="p-4 border-b border-gray-200 dark:border-gray-700 hidden lg:flex items-center justify-between">
             <button 
@@ -206,39 +217,53 @@ export default function Home() {
             <div className="p-4">
               <CollapsibleToc 
                 activeElementId={activeElementId}
-                onElementClick={(elementId) => {
-                  handleElementClick(elementId);
-                  setIsTocOpen(false); // Close ToC on mobile after selection
-                }}
+                onElementClick={handleElementClick}
               />
             </div>
           </ScrollArea>
         </div>
 
-        {/* Mobile Overlay */}
-        {isTocOpen && (
-          <div 
-            className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-5"
-            onClick={() => setIsTocOpen(false)}
-          />
-        )}
-
-        {/* Legislation Content - Right Side */}
-        <div className="lg:w-1/2 w-full lg:relative">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-700 hidden lg:block">
-            <div className="flex items-center justify-between">
-              <h1 className="text-lg font-semibold">Document Content</h1>
-              <div className="text-xs text-gray-500 text-right">
+        {/* Document Content - Sidebar */}
+        <div className={`lg:w-1/2 w-full lg:relative absolute lg:translate-x-0 transition-transform duration-300 z-20 bg-white dark:bg-gray-950 ${
+          isDocumentOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
+        }`}>
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <h1 className="text-lg font-semibold">Document Content</h1>
+            <div className="flex items-center gap-2">
+              <div className="text-xs text-gray-500 text-right hidden lg:block">
                 <div>{currentDocument.type}</div>
                 <div>Analysis: Sep 8, 2025</div>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsDocumentOpen(false)}
+                className="lg:hidden"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
             </div>
           </div>
-          <ScrollArea className="lg:h-[calc(100vh-73px)] h-[calc(100vh-60px)]">
+          <ScrollArea className="lg:h-[calc(100vh-73px)] h-[calc(100vh-133px)]">
             <OriginalDocumentView />
           </ScrollArea>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-500">Loading...</p>
+        </div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }

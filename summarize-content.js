@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config();
+import fs from 'fs';
+import dotenv from 'dotenv';
+dotenv.config();
 
 // Import the parsed legislation content
 const contentPath = './src/data/regulation-content.ts';
@@ -202,7 +202,7 @@ function loadProgress() {
       console.log(`📂 Found existing progress: ${progressData.summaries?.length || 0} items completed`);
       return progressData.summaries || [];
     }
-  } catch (error) {
+  } catch {
     console.log('⚠️  Could not load progress file, starting fresh');
   }
   return [];
@@ -342,7 +342,7 @@ async function main() {
         fs.unlinkSync(PROGRESS_FILE);
         console.log('🧹 Cleaned up progress file');
       }
-    } catch (cleanupError) {
+    } catch {
       console.log('⚠️  Could not clean up progress file (not critical)');
     }
     
